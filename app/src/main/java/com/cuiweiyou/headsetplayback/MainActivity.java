@@ -16,7 +16,7 @@ import androidx.core.app.ActivityCompat;
 /**
  * www.gaohaiyan.com
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends ExitAppActivity {
 
     private TextView devicesTextView;
     private HeadsetPlugReceiver headsetPlugReceiver;
@@ -42,8 +42,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public void whenAppExit() {
         RecordAndPlaybackUtil.getInstance().stopRecord();
         unregisterReceiver(headsetPlugReceiver);
     }
