@@ -21,6 +21,9 @@ Android 9
 <br/>
 
 🚀 测试apk：         
-<a href="https://gitee.com/vigiles/headsetplayback/raw/master/app/apk/release/app-release.apk" target="_blank">附件0.1</a>      
+<a href="https://gitee.com/vigiles/headsetplayback/raw/master/app/apk/release/app-release-0.2.apk" target="_blank">附件0.2</a>   
+   
+🚀 测试apk：         
+<a href="https://gitee.com/vigiles/headsetplayback/raw/master/app/apk/release/app-release.apk" target="_blank">附件0.1</a>    
 <br/>       
      
