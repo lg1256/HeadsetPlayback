@@ -1,6 +1,7 @@
 package com.cuiweiyou.headsetplayback;
 
 import android.Manifest;
+import android.bluetooth.BluetoothHeadset;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -28,13 +29,14 @@ public class MainActivity extends AppCompatActivity {
 
         headsetPlugReceiver = new HeadsetPlugReceiver(this, onDeviceChangedListener);
 
-        int checked = checkSelfPermission(Manifest.permission.RECORD_AUDIO);
-        if (checked == PackageManager.PERMISSION_GRANTED) {
+        int checked1 = checkSelfPermission(Manifest.permission.RECORD_AUDIO);
+        int checked2 = checkSelfPermission(Manifest.permission.BLUETOOTH);
+        if (checked1 == PackageManager.PERMISSION_GRANTED && checked2 == PackageManager.PERMISSION_GRANTED) {
             registerRecerver();
         } else {
             ActivityCompat //
                     .requestPermissions(this,  //
-                                        new String[]{Manifest.permission.RECORD_AUDIO}, //
+                                        new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.BLUETOOTH}, //
                                         990);
         }
     }
@@ -68,7 +70,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void registerRecerver() {
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intent.ACTION_HEADSET_PLUG);
+        intentFilter.addAction(Intent.ACTION_HEADSET_PLUG); // 有线耳机
+        intentFilter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED); // 蓝牙
         registerReceiver(headsetPlugReceiver, intentFilter);
 
         RecordAndPlaybackUtil.getInstance().startRecord();
@@ -76,12 +79,15 @@ public class MainActivity extends AppCompatActivity {
 
     private HeadsetPlugReceiver.OnDeviceChangedListener onDeviceChangedListener = new HeadsetPlugReceiver.OnDeviceChangedListener() {
         @Override
-        public void onDeviceChanged(boolean enable) {
-            if (enable) {
+        public void onDeviceChanged(int flag) {
+            if (3 == flag) {
                 devicesTextView.append("正在使用有线耳机\n");
                 RecordAndPlaybackUtil.getInstance().setPlayback(true);
+            } else if (78 == flag) {
+                devicesTextView.append("正在使用蓝牙耳机\n");
+                RecordAndPlaybackUtil.getInstance().setPlayback(true);
             } else {
-                devicesTextView.append("--- 请插入有线耳机 ---\n");
+                devicesTextView.append("--- 请连接耳机 ---\n");
                 RecordAndPlaybackUtil.getInstance().setPlayback(false);
             }
         }

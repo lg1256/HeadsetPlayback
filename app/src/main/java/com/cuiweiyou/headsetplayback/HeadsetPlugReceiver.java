@@ -1,30 +1,37 @@
 package com.cuiweiyou.headsetplayback;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothHeadset;
+import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
+import android.os.Build;
 import android.util.Log;
 
 /**
  * www.gaohaiyan.com
- * */
+ */
 public class HeadsetPlugReceiver extends BroadcastReceiver {
 
     private AudioManager audoManager;
     private OnDeviceChangedListener onDeviceChangedListener;
+    private final BluetoothAdapter bluetoothAdapter;
 
     public HeadsetPlugReceiver(Context context, OnDeviceChangedListener listener) {
         audoManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         onDeviceChangedListener = listener;
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
         String action = intent.getAction();
-        if (Intent.ACTION_HEADSET_PLUG.equals(action)) {
+        if (BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED.equals(action)) {
+            getHeadsetState();
+        } else if (Intent.ACTION_HEADSET_PLUG.equals(action)) {
             if (intent.hasExtra("state")) {
                 if (intent.getIntExtra("state", 0) == 0) {
                     // Log.e("ard", "有线拔出\n");
@@ -40,65 +47,65 @@ public class HeadsetPlugReceiver extends BroadcastReceiver {
     private void getHeadsetState() {
 
         AudioDeviceInfo[] devices = audoManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
-        int[] type3 = new int[1];
-        type3[0] = -100;
+        int flag = -100;
         for (AudioDeviceInfo info : devices) {
             int type = info.getType();
+            Log.e("ard类型--", "" + type);
             switch (type) {
                 case 0: {
-                    //Log.e("ard类型", "0 TYPE_UNKNOWN 与未知或未初始化设备关联的设备类型");
+                    Log.e("ard类型", "0 TYPE_UNKNOWN 与未知或未初始化设备关联的设备类型");
                     break;
                 }
 
                 case 1: {
-                    //Log.e("ard类型", "1 TYPE_BUILTIN_EARPIECE 所连接耳机扬声器的设备类型");
+                    // Log.e("ard类型", "1 TYPE_BUILTIN_EARPIECE 所连接耳机扬声器的设备类型");
                     break;
                 }
 
                 case 2: {
-                    //Log.e("ard类型", "2 TYPE_BUILTIN_SPEAKER 内置扬声器系统（即单声道扬声器或立体声扬声器）的设备类型");
+                    // Log.e("ard类型", "2 TYPE_BUILTIN_SPEAKER 内置扬声器系统（即单声道扬声器或立体声扬声器）的设备类型");
                     break;
                 }
 
                 case 3: {
                     Log.e("ard类型", "3 TYPE_WIRED_HEADSET 耳机的设备类型，它是耳机和麦克风的组合");
                     // 有线耳机插入后响应
-                    type3[0] = 3;
+                    flag = 3;
                     break;
                 }
 
                 case 4: {
-                    //Log.e("ard类型", "4 TYPE_WIRED_HEADPHONES 一对有线耳机的设备类型");
+                    // Log.e("ard类型", "4 TYPE_WIRED_HEADPHONES 一对有线耳机的设备类型");
                     break;
                 }
 
                 case 5: {
-                    //Log.e("ard类型", "5 TYPE_LINE_ANALOG 模拟线路级连接的设备类型。");
+                    // Log.e("ard类型", "5 TYPE_LINE_ANALOG 模拟线路级连接的设备类型。");
                     break;
                 }
 
                 case 6: {
-                    //Log.e("ard类型", "6 TYPE_LINE_DIGITAL 数字线路连接的设备类型（如SPDIF）");
+                    // Log.e("ard类型", "6 TYPE_LINE_DIGITAL 数字线路连接的设备类型（如SPDIF）");
                     break;
                 }
 
                 case 7: {
-                    //Log.e("ard类型", "7 TYPE_BLUETOOTH_SCO 通常用于电话的蓝牙设备的设备类型。");
+                    Log.e("ard类型", "7 TYPE_BLUETOOTH_SCO 通常用于电话的蓝牙设备的设备类型。");
                     break;
                 }
 
                 case 8: {
-                    //Log.e("ard类型", "8 TYPE_BLUETOOTH_A2DP 支持A2DP配置文件的蓝牙设备的设备类型。");
+                    Log.e("ard类型", "8 TYPE_BLUETOOTH_A2DP 支持A2DP配置文件的蓝牙设备的设备类型。");//可操控蓝牙设备，如带播放暂停功能的蓝牙耳机
                     break;
                 }
 
                 case 9: {
-                    //Log.e("ard类型", "9 TYPE_HDMI HDMI连接的设备类型。");
+                    // Log.e("ard类型", "9 TYPE_HDMI HDMI连接的设备类型。");
                     break;
                 }
 
                 case 10: {
-                    //Log.e("ard类型", "10 TYPE_HDMI_ARC HDMI连接的音频返回通道的设备类型。");
+                    // Log.e("ard类型", "10 TYPE_HDMI_ARC HDMI连接的音频返回通道的设备类型。");
                     break;
                 }
 
@@ -180,18 +187,28 @@ public class HeadsetPlugReceiver extends BroadcastReceiver {
 
         }// end for
 
-        if (3 == type3[0]) { // 没有插入有线耳机
+        if (3 == flag) { // 没有插入有线耳机
             Log.e("ard", "正在使用有线耳机");
         } else {
-            Log.e("ard", "请插入有线耳机");
+            Log.e("ard", "未插入有线耳机");
+            int state1 = bluetoothAdapter.getProfileConnectionState(BluetoothProfile.HEADSET);
+            int state2 = bluetoothAdapter.getProfileConnectionState(BluetoothProfile.A2DP);
+            Log.e("ard==", ""+state1);
+            Log.e("ard==", ""+state2);
+            if (BluetoothProfile.STATE_CONNECTED == state1 || BluetoothProfile.STATE_CONNECTED == state2) {
+                Log.e("ard", "蓝牙耳机连上了");
+                flag = 78;
+            } else {
+                Log.e("ard", "蓝牙耳机out了");
+            }
         }
 
         if (null != onDeviceChangedListener) {
-            onDeviceChangedListener.onDeviceChanged(3 == type3[0]);
+            onDeviceChangedListener.onDeviceChanged(flag);
         }
     }
 
     public interface OnDeviceChangedListener {
-        void onDeviceChanged(boolean enable);
+        void onDeviceChanged(int flag);
     }
 }
