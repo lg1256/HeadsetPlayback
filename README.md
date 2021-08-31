@@ -12,12 +12,13 @@ Android 9
 <br/>     
           
 ### 2021.9.1
-* v0.4保持亮屏，防止在后台被杀。
-<br/>
-
+* 临时保活处理，附件v0.4。保持亮屏，防止在后台被杀。  
+* 使用时适当调暗屏幕。    
+<br/>  
+  
 ### 2021.8.31
-* 最近任务设置了下图标。
-<br/>
+* 最近任务设置了下图标。  
+<br/>     
      
 ### 2021.8.30晚      
 * 支持蓝牙耳机。     
@@ -31,14 +32,14 @@ Android 9
      
 🚀 测试apk：      
 <a href="https://gitee.com/vigiles/headsetplayback/raw/master/apk/release/app-release-0.4.apk" target="_blank">附件0.4</a>
+   
 
-
-🚀 测试apk：
+🚀 测试apk：     
 <a href="https://gitee.com/vigiles/headsetplayback/raw/master/apk/release/app-release-0.3.apk" target="_blank">附件0.3</a>
 
-  
+    
 🚀 测试apk：          
 <a href="https://gitee.com/vigiles/headsetplayback/raw/master/apk/release/app-release-0.2.apk" target="_blank">附件0.2</a>
-   
+    
 <br/>        
      
