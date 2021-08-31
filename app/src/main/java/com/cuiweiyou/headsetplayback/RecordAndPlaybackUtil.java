@@ -79,6 +79,7 @@ public class RecordAndPlaybackUtil {
             }
             android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
             audioRecord.startRecording();
+            audioTrack.play();
 
             while (!isDestroy) {
                 byte[] buffer = new byte[bufferSize];
@@ -91,7 +92,6 @@ public class RecordAndPlaybackUtil {
                         continue;
                     }
                     if (readCount != 0 && readCount != -1) {
-                        audioTrack.play();
                         audioTrack.write(buffer, 0, readCount);
                     }
                 }
