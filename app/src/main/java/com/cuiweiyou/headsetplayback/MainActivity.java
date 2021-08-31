@@ -38,6 +38,7 @@ public class MainActivity extends ExitAppActivity {
         this.setTaskDescription(description);
 
         devicesTextView = findViewById(R.id.devicesTextView);
+        devicesTextView.setKeepScreenOn(true);
         headsetPlugReceiver = new HeadsetPlugReceiver(this, onDeviceChangedListener);
 
         int checked1 = checkSelfPermission(Manifest.permission.RECORD_AUDIO);

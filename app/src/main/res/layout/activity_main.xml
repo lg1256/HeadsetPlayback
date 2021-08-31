@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="45dp"
         android:gravity="center"
-        android:text="【未做保活，酌情使用】\n\n使用有线耳机或蓝牙耳机\n调整到合适音量" />
+        android:text="【未做保活，酌情使用】\n若长时间使用，可保持app打开状态，调暗屏幕亮度\n\n使用有线耳机或蓝牙耳机\n调整到合适音量" />
 
     <TextView
         android:id="@+id/devicesTextView"
