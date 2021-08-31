@@ -1,10 +1,14 @@
 package com.cuiweiyou.headsetplayback;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.bluetooth.BluetoothHeadset;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,8 +29,15 @@ public class MainActivity extends ExitAppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        devicesTextView = findViewById(R.id.devicesTextView);
 
+        // 最近任务界面的app名称和图标
+        Bitmap recentsIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.task);
+        String title = "飞速回音";
+        int color = Color.rgb(228, 204, 51); // 通常默认白色，不支持自定义
+        ActivityManager.TaskDescription description = new ActivityManager.TaskDescription(title, recentsIcon, color);
+        this.setTaskDescription(description);
+
+        devicesTextView = findViewById(R.id.devicesTextView);
         headsetPlugReceiver = new HeadsetPlugReceiver(this, onDeviceChangedListener);
 
         int checked1 = checkSelfPermission(Manifest.permission.RECORD_AUDIO);
