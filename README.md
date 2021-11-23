@@ -12,15 +12,15 @@ Android 9
 <br/>     
           
 ### 2021.11.23。开启回声消除，可以直接使用手机外放
-* 1.设置AudioMananger的模式为MODE_IN_COMMUNICATION
-AudioManager audoManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-audoManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
-* 2.获取AudioRecord的AudioSessionId()，并以此创建AcousticEchoCanceler
-int AUDIO_SESSION_ID = audioRecord.getAudioSessionId();
-acousticEchoCanceler = AcousticEchoCanceler.create(AUDIO_SESSION_ID);
+* 1.设置AudioMananger的模式为MODE_IN_COMMUNICATION  
+```AudioManager audoManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);```
+```audoManager.setMode(AudioManager.MODE_IN_COMMUNICATION);```
+* 2.获取AudioRecord的AudioSessionId()，并以此创建AcousticEchoCanceler  
+```int AUDIO_SESSION_ID = audioRecord.getAudioSessionId();```
+```acousticEchoCanceler = AcousticEchoCanceler.create(AUDIO_SESSION_ID);```
 * 3.为AudioTrack添加这个AUDIO_SESSION_ID
-* 4.开启回声消除
-acousticEchoCanceler.setEnabled(true);
+* 4.开启回声消除  
+```acousticEchoCanceler.setEnabled(true);```
 <br/>
 
 ### 2021.9.1
