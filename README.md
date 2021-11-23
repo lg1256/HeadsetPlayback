@@ -18,7 +18,15 @@ Android 9
 * 2.获取AudioRecord的AudioSessionId()，并以此创建AcousticEchoCanceler  
 ```int AUDIO_SESSION_ID = audioRecord.getAudioSessionId();```
 ```acousticEchoCanceler = AcousticEchoCanceler.create(AUDIO_SESSION_ID);```
-* 3.为AudioTrack添加这个AUDIO_SESSION_ID
+* 3.为AudioTrack添加这个AUDIO_SESSION_ID同时streamType设为AudioManager.STREAM_SYSTEM  
+```audioTrack = new AudioTrack(```
+```        AudioManager.STREAM_SYSTEM,```
+```        sampleRateInHz,```
+```        AudioFormat.CHANNEL_OUT_MONO,```
+```        audioFormat,```
+```        bufferSize * 2,```
+```        AudioTrack.MODE_STREAM,```
+```        AUDIO_SESSION_ID);```
 * 4.开启回声消除  
 ```acousticEchoCanceler.setEnabled(true);```
 <br/>
