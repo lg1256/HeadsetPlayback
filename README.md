@@ -13,20 +13,20 @@ Android 9
           
 ### 2021.11.23。开启回声消除，可以直接使用手机外放
 * 1.设置AudioMananger的模式为MODE_IN_COMMUNICATION  
-```AudioManager audoManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);```
+```AudioManager audoManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);```   
 ```audoManager.setMode(AudioManager.MODE_IN_COMMUNICATION);```
 * 2.获取AudioRecord的AudioSessionId()，并以此创建AcousticEchoCanceler  
-```int AUDIO_SESSION_ID = audioRecord.getAudioSessionId();```
+```int AUDIO_SESSION_ID = audioRecord.getAudioSessionId();```  
 ```acousticEchoCanceler = AcousticEchoCanceler.create(AUDIO_SESSION_ID);```
 * 3.为AudioTrack添加这个AUDIO_SESSION_ID同时streamType设为AudioManager.STREAM_SYSTEM  
-```audioTrack = new AudioTrack(```
-```        AudioManager.STREAM_SYSTEM,```
-```        sampleRateInHz,```
-```        AudioFormat.CHANNEL_OUT_MONO,```
-```        audioFormat,```
-```        bufferSize * 2,```
-```        AudioTrack.MODE_STREAM,```
-```        AUDIO_SESSION_ID);```
+```audioTrack = new AudioTrack(```   
+&nbsp;&nbsp;&nbsp;&nbsp;```        AudioManager.STREAM_SYSTEM,```  
+&nbsp;&nbsp;&nbsp;&nbsp;```        sampleRateInHz,```    
+&nbsp;&nbsp;&nbsp;&nbsp;```        AudioFormat.CHANNEL_OUT_MONO,```  
+&nbsp;&nbsp;&nbsp;&nbsp;```        audioFormat,```  
+&nbsp;&nbsp;&nbsp;&nbsp;```        bufferSize * 2,```  
+&nbsp;&nbsp;&nbsp;&nbsp;```        AudioTrack.MODE_STREAM,```  
+&nbsp;&nbsp;&nbsp;&nbsp;```        AUDIO_SESSION_ID);```  
 * 4.开启回声消除  
 ```acousticEchoCanceler.setEnabled(true);```
 <br/>
