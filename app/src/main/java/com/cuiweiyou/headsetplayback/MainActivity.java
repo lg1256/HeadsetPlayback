@@ -3,12 +3,14 @@ package com.cuiweiyou.headsetplayback;
 import android.Manifest;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothHeadset;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +31,10 @@ public class MainActivity extends ExitAppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // 21.11.23
+        AudioManager audoManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        audoManager.setMode(AudioManager.MODE_IN_COMMUNICATION); // 解决acousticEchoCanceler  not enough Memorry
 
         // 最近任务界面的app名称和图标
         Bitmap recentsIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.task);
@@ -86,6 +92,7 @@ public class MainActivity extends ExitAppActivity {
         registerReceiver(headsetPlugReceiver, intentFilter);
 
         RecordAndPlaybackUtil.getInstance().startRecord();
+        RecordAndPlaybackUtil.getInstance().setPlayback(false); // 21.11.23 测试手机外放时开启回声消除
     }
 
     private HeadsetPlugReceiver.OnDeviceChangedListener onDeviceChangedListener = new HeadsetPlugReceiver.OnDeviceChangedListener() {

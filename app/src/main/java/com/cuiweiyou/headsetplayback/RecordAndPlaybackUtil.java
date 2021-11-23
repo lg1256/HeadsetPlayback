@@ -5,12 +5,14 @@ import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
+import android.media.audiofx.AcousticEchoCanceler;
+import android.util.Log;
 
 import java.io.BufferedOutputStream;
 
 /**
  * www.gaohaiyan.com
- * */
+ */
 public class RecordAndPlaybackUtil {
     private int audioSource = MediaRecorder.AudioSource.MIC;  // 声源
     private int audioFormat = AudioFormat.ENCODING_PCM_16BIT; // 采样精度，一个采样点16比特，相当于2个字节。
@@ -20,13 +22,33 @@ public class RecordAndPlaybackUtil {
     private AudioRecord audioRecord;
     private AudioTrack audioTrack;
 
+    // 21.11.23
+    // 回音消除器
+    AcousticEchoCanceler acousticEchoCanceler;
+
     private MyThread thread;
 
     private static RecordAndPlaybackUtil instance;
 
     private RecordAndPlaybackUtil() {
         audioRecord = new AudioRecord(audioSource, sampleRateInHz, channelConfig, audioFormat, bufferSize * 2);
-        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRateInHz, AudioFormat.CHANNEL_OUT_MONO, audioFormat, bufferSize * 2, AudioTrack.MODE_STREAM);
+
+        // 21.11.23
+        Log.e("ard", "是否支持回声消除："+ AcousticEchoCanceler.isAvailable());
+        // id
+        int AUDIO_SESSION_ID = audioRecord.getAudioSessionId();
+        // 消除器
+        acousticEchoCanceler = AcousticEchoCanceler.create(AUDIO_SESSION_ID);
+
+        // 添加id
+        audioTrack = new AudioTrack(
+                AudioManager.STREAM_SYSTEM, // 21.11.23 配合AcousticEchoCanceler
+                sampleRateInHz,
+                AudioFormat.CHANNEL_OUT_MONO,
+                audioFormat,
+                bufferSize * 2,
+                AudioTrack.MODE_STREAM,
+                AUDIO_SESSION_ID);
     }
 
     public static RecordAndPlaybackUtil getInstance() {
@@ -56,6 +78,11 @@ public class RecordAndPlaybackUtil {
     }
 
     public void setPlayback(boolean playbackable) {
+        if (playbackable){
+            acousticEchoCanceler.setEnabled(false);
+        }else{
+            acousticEchoCanceler.setEnabled(true); // 21.11.23 手机外放时开启回声消除
+        }
         thread.setPlayback(playbackable);
     }
 
@@ -69,7 +96,8 @@ public class RecordAndPlaybackUtil {
         }
 
         public void setPlayback(boolean able) {
-            this.playbackable = able;
+            // this.playbackable = able;
+            this.playbackable = true; // 21.11.23 测试回声消除
         }
 
         @Override
@@ -97,6 +125,8 @@ public class RecordAndPlaybackUtil {
                 }
             }
 
+            acousticEchoCanceler.setEnabled(false);
+            acousticEchoCanceler.release();
             audioRecord.stop();
             audioRecord.release();
             audioTrack.stop();

@@ -29,6 +29,7 @@ public class HeadsetPlugReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
+        Log.e("ard", "动作：" + action);
         if (BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED.equals(action)) {
             getHeadsetState();
         } else if (Intent.ACTION_HEADSET_PLUG.equals(action)) {
@@ -193,8 +194,8 @@ public class HeadsetPlugReceiver extends BroadcastReceiver {
             Log.e("ard", "未插入有线耳机");
             int state1 = bluetoothAdapter.getProfileConnectionState(BluetoothProfile.HEADSET);
             int state2 = bluetoothAdapter.getProfileConnectionState(BluetoothProfile.A2DP);
-            Log.e("ard==", ""+state1);
-            Log.e("ard==", ""+state2);
+            Log.e("ard==", "" + state1);
+            Log.e("ard==", "" + state2);
             if (BluetoothProfile.STATE_CONNECTED == state1 || BluetoothProfile.STATE_CONNECTED == state2) {
                 Log.e("ard", "蓝牙耳机连上了");
                 flag = 78;
