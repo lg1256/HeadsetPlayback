@@ -9,7 +9,11 @@ Android录音实时回放示例
 小米note3       
 MIUI 12.0.1      
 Android 9     
-<br/>     
+<br/>
+
+### 2021.12.6。ui
+ui
+
           
 ### 2021.11.23。开启回声消除，可以直接使用手机外放
 * 1.设置AudioMananger的模式为MODE_IN_COMMUNICATION  
