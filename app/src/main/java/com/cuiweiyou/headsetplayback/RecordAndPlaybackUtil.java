@@ -8,8 +8,6 @@ import android.media.MediaRecorder;
 import android.media.audiofx.AcousticEchoCanceler;
 import android.util.Log;
 
-import java.io.BufferedOutputStream;
-
 /**
  * www.gaohaiyan.com
  */
@@ -26,29 +24,38 @@ public class RecordAndPlaybackUtil {
     // 回音消除器
     AcousticEchoCanceler acousticEchoCanceler;
 
-    private MyThread thread;
+    private RecordThread recordThread;
 
     private static RecordAndPlaybackUtil instance;
+    private boolean echoCancelAvailable = false;
 
     private RecordAndPlaybackUtil() {
         audioRecord = new AudioRecord(audioSource, sampleRateInHz, channelConfig, audioFormat, bufferSize * 2);
 
-        // 21.11.23
-        Log.e("ard", "是否支持回声消除："+ AcousticEchoCanceler.isAvailable());
-        // id
-        int AUDIO_SESSION_ID = audioRecord.getAudioSessionId();
-        // 消除器
-        acousticEchoCanceler = AcousticEchoCanceler.create(AUDIO_SESSION_ID);
+        // 支持回声消除
+        echoCancelAvailable = AcousticEchoCanceler.isAvailable();
+        Log.e("ard", "回声消除 " + echoCancelAvailable);
+        if (echoCancelAvailable){
+            int AUDIO_SESSION_ID = audioRecord.getAudioSessionId();               // id
+            acousticEchoCanceler = AcousticEchoCanceler.create(AUDIO_SESSION_ID); // 消除器
 
-        // 添加id
-        audioTrack = new AudioTrack(
-                AudioManager.STREAM_SYSTEM, // 21.11.23 配合AcousticEchoCanceler
-                sampleRateInHz,
-                AudioFormat.CHANNEL_OUT_MONO,
-                audioFormat,
-                bufferSize * 2,
-                AudioTrack.MODE_STREAM,
-                AUDIO_SESSION_ID);
+            audioTrack = new AudioTrack(
+                    AudioManager.STREAM_SYSTEM, // 配合AcousticEchoCanceler
+                    sampleRateInHz,
+                    AudioFormat.CHANNEL_OUT_MONO,
+                    audioFormat,
+                    bufferSize * 2,
+                    AudioTrack.MODE_STREAM,
+                    AUDIO_SESSION_ID);         // 添加id
+        } else {
+            audioTrack = new AudioTrack(
+                    AudioManager.STREAM_MUSIC,
+                    sampleRateInHz,
+                    AudioFormat.CHANNEL_OUT_MONO,
+                    audioFormat,
+                    bufferSize * 2,
+                    AudioTrack.MODE_STREAM);
+        }
     }
 
     public static RecordAndPlaybackUtil getInstance() {
@@ -65,39 +72,50 @@ public class RecordAndPlaybackUtil {
     /**
      * 开始录制
      */
-    public void startRecord() {
-        thread = new MyThread();
-        thread.start();
+    public boolean startRecord() {
+        if (null == recordThread) {
+            recordThread = new RecordThread();
+            recordThread.start();
+        }
+
+        return echoCancelAvailable;
     }
 
     public void stopRecord() {
-        if (null != thread) {
-            thread.setDestroy(true);
+        if (null != recordThread) {
+            recordThread.setDestroy(true);
         }
-        thread = null;
+        recordThread = null;
     }
 
-    public void setPlayback(boolean playbackable) {
-        if (playbackable){
-            acousticEchoCanceler.setEnabled(false);
-        }else{
-            acousticEchoCanceler.setEnabled(true); // 21.11.23 手机外放时开启回声消除
+    public void setEnchoCancel(boolean ec){
+        if (null != acousticEchoCanceler) {
+            acousticEchoCanceler.setEnabled(ec);
         }
-        thread.setPlayback(playbackable);
     }
 
-    class MyThread extends Thread {
+    public void playback() {
+        if (null != recordThread) {
+            recordThread.setPlayback(true);
+        }
+    }
+
+    public void stopback() {
+        if (null != recordThread) {
+            recordThread.setPlayback(false);
+        }
+    }
+
+    class RecordThread extends Thread {
         private boolean isDestroy = false;
         private boolean playbackable = false;
-        private BufferedOutputStream bos;
 
         public void setDestroy(boolean isDestroy) {
             this.isDestroy = isDestroy;
         }
 
         public void setPlayback(boolean able) {
-            // this.playbackable = able;
-            this.playbackable = true; // 21.11.23 测试回声消除
+            playbackable = able;
         }
 
         @Override
@@ -110,23 +128,24 @@ public class RecordAndPlaybackUtil {
             audioTrack.play();
 
             while (!isDestroy) {
-                byte[] buffer = new byte[bufferSize];
+                if (playbackable) {
+                    byte[] buffer = new byte[bufferSize];
 
-                // 录制
-                int readCount = audioRecord.read(buffer, 0, bufferSize);
+                    int readCount = audioRecord.read(buffer, 0, bufferSize);// 录制
 
-                if (playbackable) { // 播放
                     if (readCount == AudioTrack.ERROR_INVALID_OPERATION || readCount == AudioTrack.ERROR_BAD_VALUE) {
                         continue;
                     }
                     if (readCount != 0 && readCount != -1) {
-                        audioTrack.write(buffer, 0, readCount);
+                        audioTrack.write(buffer, 0, readCount); // 播放
                     }
                 }
             }
 
-            acousticEchoCanceler.setEnabled(false);
-            acousticEchoCanceler.release();
+            if (null != acousticEchoCanceler) {
+                acousticEchoCanceler.setEnabled(false);
+                acousticEchoCanceler.release();
+            }
             audioRecord.stop();
             audioRecord.release();
             audioTrack.stop();

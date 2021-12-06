@@ -1,23 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="15dp"
     android:orientation="vertical">
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="45dp"
-        android:gravity="center"
-        android:text="【未做保活，酌情使用】\n若长时间使用，可保持app打开状态，调暗屏幕亮度\n\n使用有线耳机或蓝牙耳机\n调整到合适音量" />
+        android:text="【未做保活，酌情使用】\n若长时间使用，可保持app打开状态，调暗屏幕亮度" />
 
     <TextView
-        android:id="@+id/devicesTextView"
-        android:layout_width="match_parent"
+        android:id="@+id/tipView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:padding="35dp" />
+        android:layout_marginTop="25dp"
+        android:text="正在使用外放" />
+
+    <Button
+        android:id="@+id/runningBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="45dp"
+        android:clickable="false"
+        android:text="运行"/>
+
+    <CheckBox
+        android:id="@+id/autoRecordCbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:checked="true"
+        android:text="运行即自动接收声音"/>
 
 </LinearLayout>
