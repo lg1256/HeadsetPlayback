@@ -12,11 +12,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
+import android.media.audiofx.LoudnessEnhancer;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,7 +45,14 @@ public class MainActivity extends ExitAppActivity {
     @BindView(R.id.autoRecordCbox)
     public CheckBox autoRecordCbox;
 
+    @BindView(R.id.loudnessEnhancerBar)
+    public SeekBar loudnessEnhancerBar;
+
+    @BindView(R.id.loudnessEnhancerView)
+    public TextView loudnessEnhancerView;
+
     private HeadsetPlugReceiver headsetPlugReceiver;
+    private LoudnessEnhancer loudnessEnhancer; // LoudnessEnhancer音效处理类，继承自AudioEffect
     private AudioManager audioManager;
     private Unbinder bind;
 
@@ -56,10 +65,14 @@ public class MainActivity extends ExitAppActivity {
         setContentView(R.layout.activity_main);
         bind = ButterKnife.bind(this);
 
+        Intent intent = new Intent(this, RecordService.class);
+        startForegroundService(intent);
+
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION); // 解决acousticEchoCanceler  not enough Memorry
 
         headsetPlugReceiver = new HeadsetPlugReceiver(this, onDeviceChangedListener);
+        loudnessEnhancer = new LoudnessEnhancer(RecordAndPlaybackUtil.getInstance().getAudioSessionId());
 
         initState();
         initView();
@@ -111,7 +124,7 @@ public class MainActivity extends ExitAppActivity {
         Log.e("ard", "设备数量 " + devices.length);
         for (AudioDeviceInfo device : devices) {
             int deviceType = device.getType();
-            Log.e("ard", "设备 " + device.getProductName()+" = "+deviceType);
+            Log.e("ard", "设备 " + device.getProductName() + " = " + deviceType);
             if ((deviceType == AudioDeviceInfo.TYPE_WIRED_HEADSET) || (deviceType == AudioDeviceInfo.TYPE_WIRED_HEADPHONES)) { // 有线耳机
                 tipView.setText("正在使用有线耳机");
                 isLoundspeaker = false;
@@ -129,6 +142,9 @@ public class MainActivity extends ExitAppActivity {
         boolean autoRecord = ConfigUtil.getInstance().getAutoRecord();
         Log.e("ard", "自动 " + autoRecord);
         autoRecordCbox.setChecked(autoRecord);
+
+        loudnessEnhancerBar.setOnSeekBarChangeListener(onLoudnessEnhancerBarChangedListener);
+        loudnessEnhancerBar.setProgress(50);
     }
 
     private void initTaskDescription() { // 最近任务界面的app名称和图标
@@ -165,13 +181,13 @@ public class MainActivity extends ExitAppActivity {
     }
 
     private void play() {
-        if (!isPlayback){
+        if (!isPlayback) {
             boolean echoCancelAvailable = RecordAndPlaybackUtil.getInstance().startRecord();
             if (echoCancelAvailable) {
                 RecordAndPlaybackUtil.getInstance().playback();
-                if (isLoundspeaker){
+                if (isLoundspeaker) {
                     RecordAndPlaybackUtil.getInstance().setEnchoCancel(true);
-                }else{
+                } else {
                     RecordAndPlaybackUtil.getInstance().setEnchoCancel(false);
                 }
                 isPlayback = true;
@@ -186,7 +202,7 @@ public class MainActivity extends ExitAppActivity {
                     isPlayback = true;
                 }
             }
-        }else{
+        } else {
             RecordAndPlaybackUtil.getInstance().stopback();
             isPlayback = false;
         }
@@ -211,6 +227,34 @@ public class MainActivity extends ExitAppActivity {
                 tipView.setText("正在使用外放");
                 isLoundspeaker = true;
             }
+        }
+    };
+
+    private SeekBar.OnSeekBarChangeListener onLoudnessEnhancerBarChangedListener = new SeekBar.OnSeekBarChangeListener() {
+        /**
+         * 进度被修改
+         * @param seekBar mSeekBar
+         * @param progress 修改后的百分比值-位置
+         * @param fromUser 是不是用户用手指在屏幕上滑动进行修改的。true：手指滑动屏幕修改，false:程序修改
+         */
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            if (0 == progress) {
+                loudnessEnhancer.setEnabled(false);
+                loudnessEnhancerView.setText("关闭");
+            } else {
+                loudnessEnhancer.setEnabled(true);
+                loudnessEnhancer.setTargetGain(progress * 10); // 单位mB(毫贝)。dB分贝，1dB = 100mB
+                loudnessEnhancerView.setText(progress + "db");
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
         }
     };
 }

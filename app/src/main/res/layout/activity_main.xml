@@ -34,4 +34,31 @@
         android:checked="true"
         android:text="运行即自动接收声音"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:text="音量增益"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <SeekBar
+            android:id="@+id/loudnessEnhancerBar"
+            android:layout_width="0px"
+            android:layout_weight="1"
+            android:min="0"
+            android:max="100"
+            android:progress="0"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/loudnessEnhancerView"
+            android:text="0db"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
 </LinearLayout>

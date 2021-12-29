@@ -8,6 +8,8 @@ import android.media.MediaRecorder;
 import android.media.audiofx.AcousticEchoCanceler;
 import android.util.Log;
 
+import java.util.Arrays;
+
 /**
  * www.gaohaiyan.com
  */
@@ -67,6 +69,23 @@ public class RecordAndPlaybackUtil {
             }
         }
         return instance;
+    }
+
+    // 播放设备id
+    public int getAudioSessionId(){
+        return audioTrack.getAudioSessionId();
+
+        //如果是用 MediaPlayer 播放，使用 MediaPlayer.getAudioSessionId()
+        //如果使用 AudioTrack 播放，使用 AudioTrack.getAudioSessionId()
+        //如果是用 ExoPlayer 播放，使用如下方式
+        //SimpleExoplayer.addAnalyticsListener(object: AnalyticsListener {
+        //    override fun onAudioSessionId(
+        //            eventTime: AnalyticsListener.EventTime,
+        //            audioSessionId: Int
+        //) {
+        //        val enhancer = LoudnessEnhancer(audioSessionId)
+        //  }
+        //})
     }
 
     /**
